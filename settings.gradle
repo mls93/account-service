@@ -1,2 +1,4 @@
-rootProject.name = 'AccountService'
+rootProject.name = 'Accounts'
 
+include ":accounts-service"
+include ":accounts-database"
