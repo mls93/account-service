@@ -1,9 +1,60 @@
+apply plugin: "nu.studer.jooq"
+import org.jooq.meta.jaxb.Logging
+
 dependencies {
     implementation project(":accounts-connection"),
+            project(":accounts-properties"),
             lib.guicePersist,
             lib.guiceServlet,
             lib.jettyServer,
             lib.jettyServlet
 
-    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
+    implementation 'jakarta.persistence:jakarta.persistence-api:2.2.3'
+
+    implementation lib.jooq
+    jooqGenerator lib.h2Database
+}
+
+def props = new Properties()
+file("src/main/resources/application.properties")
+        .withInputStream { props.load(it) }
+
+jooq {
+    version = jooqV
+    edition = nu.studer.gradle.jooq.JooqEdition.OSS  // default (can be omitted)
+
+    configurations {
+        main {
+            generationTool {
+                logging = Logging.WARN
+                jdbc {
+                    driver = 'org.h2.Driver'
+                    url = String.format("jdbc:h2:tcp://localhost:%s/~/%s",
+                            props.getProperty("database.tcp.port"),
+                            props.getProperty("database.name"))
+                    user = props.getProperty("database.username")
+                    password = props.getProperty("database.password")
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.h2.H2Database'
+                        inputSchema = 'PUBLIC'
+                        excludes = "DATABASECHANGELOG.*"
+                    }
+                    generate {
+                        deprecated = false
+                        records = true
+                        immutablePojos = true
+                        fluentSetters = true
+                    }
+                    target {
+                        packageName = 'ru.mls'
+                        directory = 'build/generated-src/jooq/main'
+                    }
+                    strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+                }
+            }
+        }
+    }
 }

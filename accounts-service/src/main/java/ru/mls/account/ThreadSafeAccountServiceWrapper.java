@@ -6,6 +6,7 @@ import ru.mls.AccountService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Objects;
 
@@ -41,5 +42,10 @@ public class ThreadSafeAccountServiceWrapper implements AccountService {
     public void createAccount(Long id, BigDecimal balance) {
         basicAccountService.createAccount(id, balance);
         keys.add(id);
+    }
+
+    @Override
+    public List<AccountDto> getAllAccounts() {
+        return basicAccountService.getAllAccounts();
     }
 }

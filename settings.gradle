@@ -3,3 +3,4 @@ rootProject.name = 'Accounts'
 include ":accounts-connection"
 include ":accounts-service"
 include ":accounts-database"
+include ":accounts-properties"

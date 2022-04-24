@@ -14,7 +14,7 @@ class ParseUtils {
     }
 
     static BigDecimal parseMoney(HttpServletRequest req, String parameterName) {
-        return parseValue(req, parameterName, value -> BigDecimal.valueOf(Double.valueOf(value)));
+        return parseValue(req, parameterName, value -> BigDecimal.valueOf(Double.parseDouble(value)));
     }
 
     private static <T> T parseValue(HttpServletRequest req, String parameterName, Function<String, T> converter) {

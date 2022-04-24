@@ -2,6 +2,7 @@ ext {
     h2V = '1.4.197'
     jettyV = "9.4.14.v20181114"
     guiceV = "4.2.2"
+    jooqV = "3.16.6"
 
     lib = [
             h2Database  : "com.h2database:h2:${h2V}",
@@ -11,7 +12,9 @@ ext {
 
             guice       : "com.google.inject:guice:${guiceV}",
             guicePersist: "com.google.inject.extensions:guice-persist:${guiceV}",
-            guiceServlet: "com.google.inject.extensions:guice-servlet:${guiceV}"
+            guiceServlet: "com.google.inject.extensions:guice-servlet:${guiceV}",
+
+            jooq:       "org.jooq:jooq:${jooqV}"
 
     ].withDefault({ key -> throw new IllegalArgumentException("Unknown library '$key'") })
 }

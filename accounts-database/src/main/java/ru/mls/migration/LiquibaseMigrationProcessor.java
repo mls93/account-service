@@ -14,7 +14,9 @@ import ru.mls.MigrationProcessor;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class LiquibaseMigrationProcessor implements MigrationProcessor {
     private final ConnectionProvider connectionProvider;
@@ -29,12 +31,15 @@ public class LiquibaseMigrationProcessor implements MigrationProcessor {
 
     @Override
     public void runMigrations() {
-        Connection connection = connectionProvider.getConnection();
-        Database database = getCorrectDatabaseImplementation(connection);
-        try (Liquibase liquibase = new Liquibase(changeLogFile, new ClassLoaderResourceAccessor(), database)) {
-            liquibase.update(new Contexts(), new LabelExpression());
-        } catch (LiquibaseException e) {
-            throw new RuntimeException(e);
+        try (Connection connection = connectionProvider.getConnection()) {
+            Database database = getCorrectDatabaseImplementation(connection);
+            try (Liquibase liquibase = new Liquibase(changeLogFile, new ClassLoaderResourceAccessor(), database)) {
+                liquibase.update(new Contexts(), new LabelExpression());
+            } catch (LiquibaseException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException throwables) {
+            throw new RuntimeException(throwables);
         }
     }
 

@@ -1,4 +1,5 @@
 dependencies {
     implementation project(":accounts-connection"),
+            project(":accounts-properties"),
             'org.liquibase:liquibase-core:4.9.1'
 }

@@ -16,7 +16,7 @@ public class AccountGetServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        long accountId = Long.valueOf(req.getParameter("account"));
+        long accountId = Long.parseLong(req.getParameter("account"));
         BigDecimal value = accountService.getBalance(accountId);
         resp.getWriter().append(value.toString());
     }
