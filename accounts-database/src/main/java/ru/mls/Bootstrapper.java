@@ -3,6 +3,7 @@ package ru.mls;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import ru.mls.connection.h2.ConnectionProviderModule;
 import ru.mls.migration.MigrationProcessorModule;
 import ru.mls.properties.PropertiesModule;
 import ru.mls.server.DatabaseServerModule;
@@ -18,7 +19,8 @@ public class Bootstrapper {
         return new Module[]{
                 new PropertiesModule(),
                 new DatabaseServerModule(),
-                new MigrationProcessorModule()
+                new MigrationProcessorModule(),
+                new ConnectionProviderModule()
         };
     }
 

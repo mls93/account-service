@@ -1,3 +1,5 @@
+apply from: "lib.gradle"
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
@@ -11,10 +13,8 @@ allprojects {
     dependencies {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
 
-        compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
-
-        compile group: 'com.h2database', name: 'h2', version: '1.4.197'
-        compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
+        compile lib.guice,
+                lib.h2Database
 
         testCompile group: 'junit', name: 'junit', version: '4.12'
     }

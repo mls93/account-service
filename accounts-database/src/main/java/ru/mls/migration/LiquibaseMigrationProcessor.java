@@ -9,7 +9,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import ru.mls.ConnectionProvider;
+import ru.mls.connection.ConnectionProvider;
 import ru.mls.MigrationProcessor;
 
 import javax.inject.Inject;

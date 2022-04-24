@@ -1,10 +1,9 @@
 dependencies {
-    compile group: 'com.google.inject.extensions', name: 'guice-persist', version: '4.2.2'
-    compile group: 'com.google.inject.extensions', name: 'guice-servlet', version: '4.2.2'
+    compile project(":accounts-connection"),
+            lib.guicePersist,
+            lib.guiceServlet,
+            lib.jettyServer,
+            lib.jettyServlet
 
-    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.14.v20181114'
-    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.14.v20181114'
-
-    compile group: 'com.h2database', name: 'h2', version: '1.4.197'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
 }

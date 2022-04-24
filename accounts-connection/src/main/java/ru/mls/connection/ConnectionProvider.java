@@ -1,4 +1,4 @@
-package ru.mls;
+package ru.mls.connection;
 
 import java.sql.Connection;
 
