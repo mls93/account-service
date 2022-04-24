@@ -1,15 +1,19 @@
 package ru.mls.server;
 
+import lombok.RequiredArgsConstructor;
 import org.h2.tools.Server;
 import ru.mls.ConnectionProvider;
 import ru.mls.DatabaseServer;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
+@RequiredArgsConstructor
 public class H2DatabaseServer implements DatabaseServer, ConnectionProvider {
     private final int webPort;
     private final int tcpPort;
@@ -17,60 +21,36 @@ public class H2DatabaseServer implements DatabaseServer, ConnectionProvider {
     private final String password;
     private final String database;
 
-    @Inject
-    public H2DatabaseServer(
-            @Named("database.web.port") int webPort,
-            @Named("database.tcp.port") int tcpPort,
-            @Named("database.username") String username,
-            @Named("database.password") String password,
-            @Named("database.name") String database) {
-        this.webPort = webPort;
-        this.tcpPort = tcpPort;
-        this.username = username;
-        this.password = password;
-        this.database = database;
-    }
-
-    private Server webServer;
     private Server tcpServer;
-
-    private volatile Exception serverInitException;
 
     @Override
     public void startDatabase() {
-        new Thread(this::startWebServer).start();
-        new Thread(this::startTcpServer).start();
-        waitUntilServersStart();
-    }
-
-    private void startWebServer() {
+        CompletableFuture<Server> webServerFuture = supplyAsync(this::startWebServer);
+        CompletableFuture<Server> tcpServerFuture = supplyAsync(this::startTcpServer);
+        CompletableFuture.allOf(webServerFuture, tcpServerFuture).join();
         try {
-            webServer = Server.createWebServer("-webAllowOthers", "-webPort", String.valueOf(webPort));
-            webServer.start();
-        } catch (SQLException e) {
-            serverInitException = e;
+            webServerFuture.get();
+            this.tcpServer = tcpServerFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error when starting database server", e);
         }
     }
 
-    private void startTcpServer() {
+    private Server startWebServer() {
         try {
-            tcpServer = Server.createTcpServer("-tcpAllowOthers", "-tcpPort", String.valueOf(tcpPort));
-            tcpServer.start();
+            Server webServer = Server.createWebServer("-webAllowOthers", "-webPort", String.valueOf(webPort));
+            return webServer.start();
         } catch (SQLException e) {
-            serverInitException = e;
+            throw new RuntimeException(e);
         }
     }
 
-    private void waitUntilServersStart() {
-        while (tcpServer == null || webServer == null) {
-            if (serverInitException != null) {
-                throw new RuntimeException("Error when starting database server", serverInitException);
-            }
-            try {
-                Thread.sleep(40);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+    private Server startTcpServer() {
+        try {
+            Server tcpServer = Server.createTcpServer("-tcpAllowOthers", "-tcpPort", String.valueOf(tcpPort));
+            return tcpServer.start();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
