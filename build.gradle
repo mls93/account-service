@@ -2,7 +2,7 @@ apply from: "lib.gradle"
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     group 'account.transfers'
     version '1.0-SNAPSHOT'
 
@@ -13,10 +13,10 @@ allprojects {
     dependencies {
         compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
 
-        compile lib.guice,
+        implementation lib.guice,
                 lib.h2Database
 
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testImplementation group: 'junit', name: 'junit', version: '4.12'
     }
 }
 

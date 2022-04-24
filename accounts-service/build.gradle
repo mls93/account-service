@@ -1,9 +1,9 @@
 dependencies {
-    compile project(":accounts-connection"),
+    implementation project(":accounts-connection"),
             lib.guicePersist,
             lib.guiceServlet,
             lib.jettyServer,
             lib.jettyServlet
 
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.4.1.Final'
 }
