@@ -15,41 +15,26 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 import static com.google.inject.matcher.Matchers.any;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class AccountModule extends AbstractModule {
-    private final NavigableSet<Long> keysSet = new ConcurrentSkipListSet<>();
-
     @Override
     protected void configure() {
         install(new AccountDaoModule());
         bind(AccountService.class).to(AccountServiceImpl.class).asEagerSingleton();
         install(new AccountServletModule());
-        bindListener(any(), new AccountServiceWrapperTypeListener());
     }
 
     @Named("threadSafeAccountServiceWrapper")
     @Singleton
     @Provides
     public AccountService threadSafeAccountServiceWrapper(AccountService accountService) {
+        List<AccountDto> allAccounts = accountService.getAllAccounts();
+        NavigableSet<Long> keysSet = allAccounts.stream().map(AccountDto::getId).collect(Collectors.toCollection(ConcurrentSkipListSet::new));
         return new ThreadSafeAccountServiceWrapper(accountService, keysSet);
-    }
-
-    class AccountServiceWrapperTypeListener implements TypeListener {
-        @Override
-        public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter) {
-            encounter.register((InjectionListener<I>) injectee -> {
-                System.out.println(injectee.getClass());
-                if (injectee instanceof AccountServiceImpl) {
-                    setupKeys(((AccountServiceImpl) injectee).getAllAccounts());
-                }
-            });
-        }
-
-        private void setupKeys(List<AccountDto> accounts){
-            keysSet.addAll(accounts.stream().map(AccountDto::getId).collect(toSet()));
-        }
     }
 }
